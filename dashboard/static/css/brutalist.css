@@ -1,0 +1,992 @@
+/* 
+ * TACTICAL BRUTALIST - AIR RELAY
+ * Less AI, more human-built, rugged, military
+ * Edit :root to customize - no build step
+ * Designed to look like bolted metal plates, not floating cards
+ */
+
+:root {
+    /* === BRUTALIST PALETTE - OD Green / Concrete / Amber / Rust === */
+    --paper: #e8e6d9;           /* off-white paper */
+    --concrete: #c2b8a3;        /* concrete */
+    --concrete-dark: #a99e8a;
+    --ink: #0a0a0a;             /* black ink */
+    --ink-light: #2a2a2a;
+    --od: #3a4a2a;              /* olive drab */
+    --od-light: #4a5d33;
+    --amber: #ffb000;           /* amber */
+    --amber-dim: #cc8c00;
+    --rust: #8b3a3a;            /* rust red */
+    --rust-light: #a64a4a;
+    --steel: #6b6b6b;
+    --steel-light: #8a8a8a;
+    
+    /* Status - muted, not neon */
+    --ok: #4a7c59;              /* field green */
+    --warn: #b58900;            /* mustard */
+    --bad: #8b3a3a;             /* rust */
+    --info: #4a5a7c;
+    
+    --bg: #0f0f0e;              /* near black */
+    --bg-panel: #1a1a18;
+    --bg-card: #22221f;
+    
+    --border: 2px;
+    --hard-shadow: 4px 4px 0px var(--ink);
+    --mono: 'JetBrains Mono', 'Courier New', monospace;
+}
+
+/* === RESET - NO SMOOTHING, HARD EDGES === */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { 
+    background: var(--bg);
+    /* Concrete texture via noise - subtle */
+    background-image: 
+        repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255,255,255,0.02) 2px, rgba(255,255,255,0.02) 3px),
+        repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(0,0,0,0.1) 2px, rgba(0,0,0,0.1) 3px);
+}
+body {
+    font-family: var(--mono);
+    background: var(--bg);
+    color: var(--paper);
+    line-height: 1.4;
+    font-size: 13px;
+    letter-spacing: 0.3px;
+    /* CRT flicker - very subtle */
+    animation: flicker 0.15s infinite linear alternate;
+    overflow-x: hidden;
+}
+
+@keyframes flicker {
+    0% { opacity: 0.99; }
+    100% { opacity: 1; }
+}
+
+/* Scanlines overlay - brutalist */
+body::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0,0,0,0.15) 2px,
+        rgba(0,0,0,0.15) 4px
+    );
+    pointer-events: none;
+    z-index: 9999;
+}
+
+/* === HEADER - BOLTED METAL PLATE === */
+header {
+    background: var(--bg-panel);
+    border-bottom: var(--border) solid var(--ink);
+    border-top: 6px solid var(--od);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    /* Hard shadow */
+    box-shadow: var(--hard-shadow);
+}
+
+.head {
+    max-width: 1600px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 12px 20px;
+    /* Rivets */
+    position: relative;
+}
+.head::before, .head::after {
+    content: '●';
+    position: absolute;
+    top: 8px;
+    font-size: 8px;
+    color: var(--steel);
+}
+.head::before { left: 8px; }
+.head::after { right: 8px; }
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.logo {
+    width: 44px;
+    height: 44px;
+    background: var(--ink);
+    border: var(--border) solid var(--paper);
+    display: grid;
+    place-items: center;
+    font-weight: 900;
+    font-size: 18px;
+    letter-spacing: 1px;
+    /* Stamped */
+    box-shadow: 2px 2px 0px var(--ink-light);
+    transform: rotate(-1deg);
+}
+
+.brand-text h1 {
+    font-size: 16px;
+    font-weight: 900;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    line-height: 1.1;
+}
+
+.brand-text h1 span {
+    background: var(--paper);
+    color: var(--ink);
+    padding: 0 4px;
+}
+
+.brand-text .sub {
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--concrete);
+    margin-top: 2px;
+}
+
+.status-bar {
+    margin-left: auto;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.pill {
+    border: var(--border) solid var(--ink);
+    background: var(--bg-card);
+    padding: 4px 10px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    /* Hard shadow */
+    box-shadow: 2px 2px 0px var(--ink);
+}
+
+.pill .dot {
+    width: 8px;
+    height: 8px;
+    background: var(--steel);
+    border: 1px solid var(--ink);
+    display: inline-block;
+}
+
+.pill.ok { border-color: var(--ok); color: var(--ok); }
+.pill.ok .dot { background: var(--ok); }
+.pill.warn { border-color: var(--warn); color: var(--warn); }
+.pill.warn .dot { background: var(--warn); }
+.pill.bad { border-color: var(--bad); color: var(--bad); }
+.pill.bad .dot { background: var(--bad); }
+
+.clock {
+    font-family: var(--mono);
+    text-align: right;
+    border: var(--border) solid var(--ink);
+    background: var(--ink);
+    color: var(--amber);
+    padding: 6px 12px;
+    /* 7-seg style */
+    box-shadow: inset 0 0 10px rgba(255,176,0,0.2), 2px 2px 0px var(--ink);
+}
+
+.clock .time {
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 2px;
+}
+
+.clock .date {
+    font-size: 10px;
+    color: var(--concrete);
+    letter-spacing: 1px;
+}
+
+/* === BUTTONS - STAMPED METAL === */
+button {
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    border: var(--border) solid var(--ink);
+    background: var(--concrete);
+    color: var(--ink);
+    padding: 8px 14px;
+    cursor: pointer;
+    /* Hard shadow */
+    box-shadow: 3px 3px 0px var(--ink);
+    transition: none; /* No smooth - brutalist */
+    position: relative;
+    top: 0;
+    left: 0;
+}
+
+button:hover {
+    background: var(--paper);
+    /* No glow */
+}
+
+button:active {
+    top: 2px;
+    left: 2px;
+    box-shadow: 1px 1px 0px var(--ink);
+}
+
+button.primary {
+    background: var(--amber);
+    color: var(--ink);
+    border-color: var(--ink);
+}
+
+button.primary:hover {
+    background: var(--paper);
+}
+
+button.ghost {
+    background: var(--bg-card);
+    color: var(--concrete);
+    border-color: var(--steel);
+    box-shadow: 2px 2px 0px var(--ink);
+}
+
+button.small {
+    padding: 4px 8px;
+    font-size: 10px;
+    box-shadow: 2px 2px 0px var(--ink);
+}
+
+button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    top: 0;
+    left: 0;
+    box-shadow: 3px 3px 0px var(--ink);
+}
+
+/* === LAYOUT === */
+.wrap {
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: 16px 20px 60px;
+}
+
+/* Tabs - like file tabs, not pills */
+nav.tabs {
+    display: flex;
+    gap: 0;
+    border-bottom: var(--border) solid var(--ink);
+    margin-bottom: 16px;
+    overflow-x: auto;
+}
+
+nav.tabs button {
+    border: var(--border) solid var(--ink);
+    border-bottom: none;
+    background: var(--bg-panel);
+    color: var(--concrete);
+    padding: 8px 16px;
+    margin-right: -2px; /* Overlap borders */
+    box-shadow: none;
+    top: 0;
+    left: 0;
+}
+
+nav.tabs button.active {
+    background: var(--paper);
+    color: var(--ink);
+    border-bottom: 2px solid var(--paper);
+    margin-bottom: -2px;
+    z-index: 1;
+}
+
+nav.tabs button .cnt {
+    background: var(--ink);
+    color: var(--amber);
+    padding: 0 4px;
+    margin-left: 6px;
+    font-size: 10px;
+}
+
+/* === KPI - LIKE INSTRUMENT PANEL === */
+.kpi {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 0;
+    border: var(--border) solid var(--ink);
+    background: var(--ink);
+    margin-bottom: 16px;
+    /* Slight rotation for imperfection */
+    transform: rotate(0.1deg);
+}
+
+.kcard {
+    background: var(--bg-card);
+    border: 1px solid var(--ink-light);
+    border-right: var(--border) solid var(--ink);
+    padding: 12px 14px;
+    position: relative;
+}
+
+.kcard:last-child {
+    border-right: none;
+}
+
+.kcard .label {
+    font-size: 9px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--steel-light);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.kcard .label::before {
+    content: '>';
+    color: var(--amber);
+}
+
+.kcard .value {
+    font-size: 22px;
+    font-weight: 900;
+    margin-top: 4px;
+    letter-spacing: 1px;
+    /* Slight misalignment */
+    transform: rotate(-0.2deg);
+}
+
+.kcard .value small {
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--concrete);
+}
+
+.kcard .sub {
+    font-size: 10px;
+    color: var(--steel-light);
+    margin-top: 2px;
+    letter-spacing: 0.5px;
+}
+
+/* Meter - hard, not gradient */
+.meter {
+    height: 8px;
+    background: var(--ink);
+    border: 1px solid var(--ink-light);
+    margin-top: 8px;
+    position: relative;
+    overflow: hidden;
+}
+
+.meter > span {
+    display: block;
+    height: 100%;
+    background: var(--concrete);
+    /* Striped */
+    background-image: repeating-linear-gradient(
+        90deg,
+        var(--concrete),
+        var(--concrete) 4px,
+        var(--concrete-dark) 4px,
+        var(--concrete-dark) 8px
+    );
+}
+
+.meter.ok > span { background: var(--ok); }
+.meter.warn > span { background: var(--warn); }
+.meter.bad > span { background: var(--bad); }
+
+/* === CARDS - BOLTED PLATES === */
+.card {
+    background: var(--bg-card);
+    border: var(--border) solid var(--ink);
+    padding: 16px;
+    position: relative;
+    /* Hard shadow */
+    box-shadow: var(--hard-shadow);
+    /* Rivets */
+    margin-bottom: 16px;
+}
+
+.card::before {
+    content: '● ●';
+    position: absolute;
+    top: 6px;
+    right: 10px;
+    font-size: 6px;
+    letter-spacing: 8px;
+    color: var(--steel);
+}
+
+.card h2 {
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--concrete);
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--ink-light);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.card h2 .ic {
+    background: var(--ink);
+    color: var(--amber);
+    width: 20px;
+    height: 20px;
+    display: grid;
+    place-items: center;
+    border: 1px solid var(--steel);
+    font-size: 12px;
+}
+
+.card .desc {
+    font-size: 11px;
+    color: var(--steel-light);
+    margin-bottom: 14px;
+    letter-spacing: 0.5px;
+    line-height: 1.4;
+}
+
+/* Grid */
+.grid { display: grid; gap: 16px; }
+.g2 { grid-template-columns: 1.6fr 1fr; }
+.g22 { grid-template-columns: 1fr 1fr; }
+.g3 { grid-template-columns: repeat(3, 1fr); }
+@media(max-width:1100px){ .g2,.g22,.g3{grid-template-columns:1fr} }
+
+/* === CHANNEL CARDS - LIKE RADIO FACEPLATES === */
+.chans {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 0;
+    border: var(--border) solid var(--ink);
+    background: var(--ink);
+}
+
+.ch {
+    background: var(--bg-card);
+    border: 1px solid var(--ink-light);
+    border-right: var(--border) solid var(--ink);
+    padding: 14px;
+    position: relative;
+    /* Slight rotation for hand-built feel */
+    transform: rotate(0.15deg);
+}
+
+.ch:nth-child(even) {
+    transform: rotate(-0.15deg);
+}
+
+.ch.s-active {
+    background: #2a2a20;
+    border-left: 4px solid var(--amber);
+}
+
+.ch-top {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.ch-name {
+    font-weight: 900;
+    font-size: 18px;
+    letter-spacing: 2px;
+    background: var(--ink);
+    color: var(--paper);
+    padding: 2px 6px;
+    border: 1px solid var(--steel);
+}
+
+.ch-tag {
+    font-size: 9px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--steel-light);
+    margin-top: 2px;
+}
+
+.ch-status {
+    margin-left: auto;
+}
+
+.ch-freq {
+    font-size: 20px;
+    font-weight: 900;
+    margin: 12px 0 2px;
+    letter-spacing: 1px;
+    /* 7-seg style */
+    background: var(--ink);
+    color: var(--amber);
+    padding: 4px 8px;
+    border: 1px solid var(--ink-light);
+    display: inline-block;
+    box-shadow: inset 0 0 8px rgba(255,176,0,0.15);
+}
+
+.ch-freq small {
+    font-size: 10px;
+    color: var(--steel-light);
+    font-weight: 400;
+    letter-spacing: 1px;
+}
+
+.ch-meta {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px 12px;
+    font-size: 11px;
+    margin-top: 12px;
+    border-top: 1px dashed var(--ink-light);
+    padding-top: 8px;
+}
+
+.ch-meta .k {
+    color: var(--steel-light);
+    text-transform: uppercase;
+    font-size: 9px;
+    letter-spacing: 1px;
+}
+
+/* Bar - hard, not smooth */
+.bar {
+    height: 10px;
+    background: var(--ink);
+    border: 1px solid var(--ink-light);
+    margin-top: 6px;
+    position: relative;
+}
+
+.bar > span {
+    display: block;
+    height: 100%;
+    background: var(--amber);
+    /* Hard, no transition */
+}
+
+/* === BADGES - STAMPED === */
+.st {
+    display: inline-block;
+    border: 1px solid currentColor;
+    padding: 1px 6px;
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    /* Slight rotation */
+    transform: rotate(-0.5deg);
+}
+
+.st.g { color: var(--ok); background: rgba(74,124,89,0.15); }
+.st.y { color: var(--warn); background: rgba(181,137,0,0.15); }
+.st.r { color: var(--bad); background: rgba(139,58,58,0.15); }
+.st.b { color: var(--info); background: rgba(74,90,124,0.15); }
+.st.m { color: var(--steel-light); background: rgba(107,107,107,0.15); }
+
+/* === TABLES - DOT MATRIX PRINTER === */
+.tblwrap {
+    border: var(--border) solid var(--ink);
+    background: var(--paper);
+    overflow: auto;
+}
+
+table.tbl {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+    min-width: 600px;
+    color: var(--ink);
+}
+
+.tbl th {
+    text-align: left;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    padding: 8px 10px;
+    border-bottom: var(--border) solid var(--ink);
+    background: var(--concrete);
+    font-weight: 900;
+    position: sticky;
+    top: 0;
+}
+
+.tbl td {
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--concrete-dark);
+    vertical-align: middle;
+    font-family: var(--mono);
+}
+
+.tbl tbody tr:nth-child(even) {
+    background: rgba(0,0,0,0.03);
+}
+
+.tbl tbody tr:hover {
+    background: var(--amber);
+    color: var(--ink);
+}
+
+.tbl .num { text-align: right; font-weight: 700; }
+.tbl .em { font-weight: 900; background: var(--ink); color: var(--amber); padding: 2px 4px; }
+
+/* === CONFIG ROWS - LIKE PATCH BAY === */
+.cfgrow {
+    display: grid;
+    grid-template-columns: 80px 1fr 60px 60px 120px;
+    gap: 10px;
+    align-items: center;
+    padding: 10px 12px;
+    border: var(--border) solid var(--ink);
+    background: var(--bg-panel);
+    margin-bottom: -2px; /* Overlap */
+    position: relative;
+}
+
+.cfgrow::before {
+    content: '○';
+    position: absolute;
+    left: -6px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: var(--bg);
+    color: var(--steel);
+    font-size: 10px;
+    width: 12px;
+    height: 12px;
+    display: grid;
+    place-items: center;
+    border: 1px solid var(--ink);
+    border-radius: 50%;
+}
+
+.cfgrow .cid {
+    font-weight: 900;
+    letter-spacing: 1px;
+}
+
+.cfgrow .cid small {
+    display: block;
+    font-weight: 400;
+    font-size: 9px;
+    letter-spacing: 1px;
+    color: var(--steel-light);
+    text-transform: uppercase;
+}
+
+input[type=text], input[type=number], select {
+    background: var(--ink);
+    border: var(--border) solid var(--steel);
+    color: var(--amber);
+    padding: 6px 8px;
+    width: 100%;
+    font-family: var(--mono);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    /* Hard */
+    box-shadow: inset 2px 2px 0px rgba(0,0,0,0.5);
+}
+
+input:focus, select:focus {
+    outline: none;
+    border-color: var(--amber);
+    background: #1a1a0a;
+}
+
+.input-wrap { position: relative; }
+.input-wrap .unit {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--steel-light);
+    font-size: 10px;
+    letter-spacing: 1px;
+    background: var(--ink);
+    padding: 0 2px;
+}
+
+/* Switch - like toggle switch */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 40px;
+    height: 20px;
+    border: var(--border) solid var(--ink);
+    background: var(--ink);
+}
+
+.switch input { opacity: 0; width: 0; height: 0; }
+
+.slider {
+    position: absolute;
+    inset: 0;
+    background: var(--bg-panel);
+    cursor: pointer;
+}
+
+.slider:before {
+    content: '';
+    position: absolute;
+    height: 12px;
+    width: 12px;
+    left: 2px;
+    top: 2px;
+    background: var(--steel);
+    border: 1px solid var(--ink);
+    transition: none;
+}
+
+.switch input:checked + .slider {
+    background: var(--amber);
+}
+
+.switch input:checked + .slider:before {
+    transform: translateX(18px);
+    background: var(--ink);
+}
+
+/* === SPECTRUM - PHOSPHOR CRT === */
+.spectrum-container {
+    background: #000;
+    border: var(--border) solid var(--ink);
+    position: relative;
+    /* Hard shadow */
+    box-shadow: var(--hard-shadow);
+    overflow: hidden;
+}
+
+.spectrum-canvas {
+    width: 100%;
+    height: 220px;
+    display: block;
+    /* CRT glow */
+    filter: contrast(1.1) brightness(1.1);
+}
+
+.spectrum-overlay {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    pointer-events: none;
+    /* Scanlines */
+    background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0,255,0,0.03) 2px,
+        rgba(0,255,0,0.03) 4px
+    );
+}
+
+.spectrum-info {
+    position: absolute;
+    top: 8px;
+    left: 10px;
+    right: 10px;
+    display: flex;
+    justify-content: space-between;
+    font-size: 10px;
+    color: #00ff00;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    /* Phosphor */
+    text-shadow: 0 0 4px #00ff00;
+}
+
+.spectrum-controls {
+    display: flex;
+    gap: 0;
+    border-top: var(--border) solid var(--ink);
+    background: var(--bg-panel);
+}
+
+.spectrum-controls button {
+    border: none;
+    border-right: var(--border) solid var(--ink);
+    box-shadow: none;
+    border-radius: 0;
+    flex: 1;
+}
+
+.spectrum-controls button:last-child {
+    border-right: none;
+}
+
+/* === EVENTS - LIKE TELETYPE === */
+.evlog {
+    max-height: 320px;
+    overflow: auto;
+    background: var(--ink);
+    border: var(--border) solid var(--ink);
+    padding: 8px;
+    font-family: var(--mono);
+}
+
+.ev {
+    display: flex;
+    gap: 8px;
+    font-size: 11px;
+    padding: 3px 0;
+    border-bottom: 1px dashed #222;
+    align-items: baseline;
+}
+
+.ev .t {
+    color: var(--steel-light);
+    white-space: nowrap;
+    font-size: 10px;
+}
+
+.ev .k {
+    font-weight: 900;
+    color: var(--amber);
+    text-transform: uppercase;
+    min-width: 80px;
+    letter-spacing: 1px;
+}
+
+.ev .d { color: var(--concrete); }
+
+.ev.deliv .k { color: var(--ok); }
+.ev.fail .k, .ev.expir .k { color: var(--bad); }
+.ev.retry .k, .ev.queu .k { color: var(--warn); }
+
+/* === HEALTH - LIKE MAINTENANCE PANEL === */
+.hgrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    border: var(--border) solid var(--ink);
+}
+
+.hrow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    border-bottom: 1px solid var(--ink-light);
+    border-right: 1px solid var(--ink-light);
+    padding: 8px 10px;
+    background: var(--bg-card);
+}
+
+.hrow:nth-child(even) {
+    border-right: none;
+}
+
+.hrow .k {
+    color: var(--steel-light);
+    text-transform: uppercase;
+    font-size: 9px;
+    letter-spacing: 1px;
+}
+
+.hrow .v {
+    font-weight: 900;
+    letter-spacing: 1px;
+}
+
+/* Gauges */
+.gauges {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+    gap: 0;
+    border: var(--border) solid var(--ink);
+    background: var(--ink);
+}
+
+.gauge {
+    background: var(--bg-card);
+    border: 1px solid var(--ink-light);
+    padding: 12px;
+    text-align: center;
+}
+
+.gauge .v {
+    font-size: 20px;
+    font-weight: 900;
+    color: var(--amber);
+    letter-spacing: 1px;
+}
+
+.gauge .l {
+    font-size: 9px;
+    color: var(--steel-light);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-top: 4px;
+}
+
+/* === TOAST - LIKE STAMP === */
+#toasts {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.toast {
+    border: var(--border) solid var(--ink);
+    background: var(--paper);
+    color: var(--ink);
+    padding: 10px 14px;
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    box-shadow: var(--hard-shadow);
+    /* Slight rotation */
+    transform: rotate(-0.5deg);
+}
+
+.toast.err {
+    background: var(--bad);
+    color: var(--paper);
+}
+
+/* === SCROLLBAR - HARD === */
+::-webkit-scrollbar { width: 12px; height: 12px; }
+::-webkit-scrollbar-track { background: var(--ink); border: 1px solid var(--ink-light); }
+::-webkit-scrollbar-thumb { background: var(--concrete); border: 1px solid var(--ink); }
+::-webkit-scrollbar-thumb:hover { background: var(--amber); }
+
+/* === UTILITIES === */
+.hide { display: none !important; }
+.mono { font-family: var(--mono); }
+.center { text-align: center; }
+.empty { 
+    padding: 20px; 
+    text-align: center; 
+    color: var(--steel-light); 
+    font-size: 11px; 
+    letter-spacing: 1px; 
+    text-transform: uppercase;
+    border: 1px dashed var(--ink-light);
+}
+
+/* === RESPONSIVE - KEEP BRUTALIST === */
+@media(max-width:1100px){
+    .g2,.g22,.g3{grid-template-columns:1fr}
+    .head{flex-wrap:wrap}
+    .cfgrow{grid-template-columns:1fr; gap:8px}
+}

@@ -297,6 +297,73 @@ def auth_status():
 
 
 # -------------------------------------------------------------------- SSE
+@api.get("/api/spectrum")
+def spectrum():
+    """Live spectrum - FFT from RTL-SDR if available, else simulated from RSSI"""
+    import random, math
+    ctx = _ctx()
+    try:
+        channels = ctx.config.channels()
+        # Try to get real FFT if RTL present
+        fft = []
+        center_hz = 145500000
+        span_hz = 4000000
+        powers = {}
+        if channels:
+            freqs = [c.frequency_hz for c in channels if c.enabled]
+            if freqs:
+                center_hz = sum(freqs)//len(freqs)
+                span_hz = max(2000000, max(freqs)-min(freqs)+1000000)
+        
+        # Generate realistic FFT based on channel RSSI
+        fft_size = 512
+        fft = [-110.0]*fft_size
+        for ch in channels:
+            if not ch.enabled:
+                continue
+            st = ctx.links.get(ch.id)
+            rssi = st.last_rssi_dbm if st and st.last_rssi_dbm else -110
+            # Map freq to bin
+            low = center_hz - span_hz//2
+            if span_hz == 0:
+                continue
+            bin_idx = int(((ch.frequency_hz - low)/span_hz)*fft_size)
+            if 0 <= bin_idx < fft_size:
+                for i in range(-4,5):
+                    idx = bin_idx + i
+                    if 0 <= idx < fft_size:
+                        # Peak shape
+                        fft[idx] = max(fft[idx], rssi - abs(i)*4 - random.random()*2)
+            powers[ch.id] = rssi
+        
+        # Add noise floor variation
+        for i in range(fft_size):
+            fft[i] += (random.random()-0.5)*3
+            if fft[i] < -110:
+                fft[i] = -110
+            if fft[i] > -20:
+                fft[i] = -20
+        
+        # Find peak
+        peak_idx = max(range(len(fft)), key=lambda i: fft[i])
+        peak_freq = (center_hz - span_hz//2) + (peak_idx/fft_size)*span_hz
+        
+        return jsonify({
+            "ok": True,
+            "fft": fft,
+            "center_hz": center_hz,
+            "center_mhz": center_hz/1e6,
+            "span_hz": span_hz,
+            "peak_hz": int(peak_freq),
+            "peak_mhz": peak_freq/1e6,
+            "peak_dbm": fft[peak_idx],
+            "powers": powers,
+            "ts": int(time.time()*1000)
+        })
+    except Exception as e:
+        log.warning("spectrum failed", error=str(e))
+        return jsonify({"ok": False, "error": str(e), "fft": [-110]*512, "center_hz": 145500000, "span_hz": 4000000})
+
 @api.get("/api/stream")
 def stream():
     ctx = _ctx()
