@@ -1,0 +1,33 @@
+# AirRelay — Airborne multi-band SDR relay system
+#
+# Runs the full stack in one process: radio manager (RTL-SDR RX scan +
+# HackRF TX), relay engine, persistent store-and-forward, optional Pixhawk
+# interface, altitude optimizer and the wireless dashboard web server.
+#
+# Install: scripts/install_service.sh
+# Commands: scripts/control.sh {start,stop,restart,status,logs,diagnose}
+
+[Unit]
+Description=AirRelay multi-band SDR relay
+Wants=network-online.target
+After=network-online.target
+# Ensure the RF dongles are enumerated before the manager opens them.
+After=systemd-udev-settle.service
+Wants=systemd-udev-settle.service
+
+[Service]
+Type=simple
+User=root
+Group=root
+Environment=AIRRELAY_HOME=/opt/airrelay
+# airrelay serve runs radios, relay, queue and dashboard together.
+ExecStart=/opt/airrelay/venv/bin/airrelay serve
+WorkingDirectory=/opt/airrelay
+Restart=always
+RestartSec=5
+# Basic protections that do not interfere with the relay's required I/O.
+NoNewPrivileges=false
+LimitNOFILE=4096
+
+[Install]
+WantedBy=multi-user.target

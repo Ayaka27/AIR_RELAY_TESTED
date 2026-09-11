@@ -1,0 +1,9 @@
+# Core (installed by install_raspberrypi.sh)
+flask>=2.2
+
+# Hardware backends (system packages must also be installed)
+pyrtlsdr>=0.2.6          # RTL-SDR RX path
+hackrf>=0.1              # HackRF One TX path
+
+# Flight controller (optional; requires flight.enabled=true)
+pymavlink>=2.4.37

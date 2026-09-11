@@ -1,0 +1,147 @@
+{
+  "system": {
+    "name": "air-relay-1",
+    "log_level": "INFO",
+    "timezone": "UTC"
+  },
+  "band_limits": {
+    "min_mhz": 24.0,
+    "max_mhz": 1700.0,
+    "guard_band_khz": 25.0
+  },
+  "channels": [
+    {
+      "id": "F1",
+      "label": "Channel 1",
+      "enabled": true,
+      "frequency_mhz": 145.5,
+      "tx_allowed": true,
+      "rx_allowed": true
+    },
+    {
+      "id": "F2",
+      "label": "Channel 2",
+      "enabled": true,
+      "frequency_mhz": 146.7,
+      "tx_allowed": true,
+      "rx_allowed": true
+    },
+    {
+      "id": "F3",
+      "label": "Channel 3",
+      "enabled": true,
+      "frequency_mhz": 433.25,
+      "tx_allowed": true,
+      "rx_allowed": true
+    },
+    {
+      "id": "F4",
+      "label": "Channel 4",
+      "enabled": true,
+      "frequency_mhz": 446.125,
+      "tx_allowed": true,
+      "rx_allowed": true
+    }
+  ],
+  "radio": {
+    "architecture": "opaque_iq_time_division",
+    "rx_device": "rtl",
+    "tx_device": "hackrf",
+    "rf_sample_rate_hz": 2000000,
+    "rx_gain_db": 0,
+    "tx_enable": true,
+    "tx_amp_enable": false,
+    "txvga_gain_db": 0,
+    "scan_order": [
+      "F1",
+      "F2",
+      "F3",
+      "F4"
+    ],
+    "capture": {
+      "listen_s": 0.35,
+      "max_clip_s": 1.0,
+      "tail_s": 0.25,
+      "post_tx_guard_s": 0.6
+    },
+    "squelch": {
+      "enable": true,
+      "open_dbm": -95.0,
+      "hold_dbm": -101.0
+    },
+    "rx_min_carrier_dbm": -110.0
+  },
+  "control": {
+    "enabled": false,
+    "frequency_mhz": 434.0,
+    "baud": 1200,
+    "heartbeat_s": 10,
+    "timeout_s": 30
+  },
+  "link_monitor": {
+    "poll_ms": 1000,
+    "available_timeout_ms": 5000,
+    "degraded_timeout_ms": 20000,
+    "recovery_probes": 1,
+    "history_len": 50,
+    "rssi_smooth_alpha": 0.3
+  },
+  "relay": {
+    "mode": "bridge",
+    "confirm": "rf_tx",
+    "poll_ms": 500,
+    "dedupe_window_ms": 60000,
+    "max_concurrent_tx": 1
+  },
+  "store_forward": {
+    "max_queue_size": 500,
+    "max_retry_count": 6,
+    "retry_interval_s": 5,
+    "retry_backoff_factor": 2.0,
+    "max_retry_interval_s": 300,
+    "ttl_s": 900,
+    "tx_window_ms": 800,
+    "max_payload_bytes": 9000000,
+    "max_clip_s": 1.0,
+    "delivered_retention_s": 600
+  },
+  "flight": {
+    "enabled": false,
+    "connection": "udpin:127.0.0.1:14550",
+    "source_system": 255,
+    "baud": 115200,
+    "poll_ms": 1000
+  },
+  "altitude": {
+    "enabled": false,
+    "min_alt_m": 50,
+    "max_alt_m": 400,
+    "hysteresis_m": 15,
+    "stabilization_s": 20,
+    "cooldown_s": 30,
+    "score": {
+      "w_rssi": 1.0,
+      "w_snr": 1.0,
+      "w_coverage": 2.0,
+      "w_stability": 1.0,
+      "w_altitude_cost": 0.5,
+      "rssi_target_dbm": -85.0,
+      "snr_target_db": 12.0
+    },
+    "alt_step_m": 20
+  },
+  "dashboard": {
+    "host": "0.0.0.0",
+    "port": 8080,
+    "auth_enabled": false,
+    "session_ttl_s": 7200,
+    "public_link_read": true
+  },
+  "logging": {
+    "file_enabled": true,
+    "level": "INFO"
+  },
+  "dev": {
+    "allow_inject": true
+  }
+}
